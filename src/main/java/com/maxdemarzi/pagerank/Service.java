@@ -37,12 +37,14 @@ public class Service {
 
     @GET
     @Path("/pagerank")
-    public Response pageRank(@DefaultValue("20") @QueryParam("iterations") int iterations,
-                           @Context GraphDatabaseService db) throws IOException {
+    public Response pageRank(@DefaultValue("100")      @QueryParam("iterations")                   int iterations, 
+                             @DefaultValue("pagerank") @QueryParam("result_property_name")         String resultName,
+                             @DefaultValue("all")      @QueryParam("filter_prop_name")             String relFilter,
+                             @Context GraphDatabaseService db) throws IOException {
 
         PageRankArrayStorageParallelSPI pageRank = new PageRankArrayStorageParallelSPI(db, pool);
-        pageRank.compute(iterations);
-        writeBackResults(db, pageRank);
+        pageRank.compute(iterations, relFilter);
+        writeBackResults(db, pageRank, resultName);
 
         Map<String, String> results = new HashMap<String, String>() {{
             put("results", "PageRank Completed!");
@@ -52,10 +54,10 @@ public class Service {
     }
 
 
-    public void writeBackResults(final GraphDatabaseService db, final Algorithm algorithm) {
+    public void writeBackResults(final GraphDatabaseService db, final Algorithm algorithm, String resultName) {
         final ThreadToStatementContextBridge ctx = ((GraphDatabaseAPI)db).getDependencyResolver().resolveDependency(ThreadToStatementContextBridge.class);
-        final int propertyNameId = getPropertyNameId(db, algorithm, ctx);
-        final long nodes = algorithm.numberOfNodes();
+        final int propertyNameId = getPropertyNameId(db, algorithm, ctx, resultName);
+        final long nodes = algorithm.numberOfNodes(); 
         int batches = (int) nodes / WRITE_BATCH;
         List<Future> futures = new ArrayList<>(batches);
         for (int node = 0; node < nodes; node += WRITE_BATCH) {
@@ -83,10 +85,10 @@ public class Service {
         Utils.waitForTasks(futures);
     }
 
-    private int getPropertyNameId(GraphDatabaseService db, Algorithm algorithm, ThreadToStatementContextBridge ctx) {
+    private int getPropertyNameId(GraphDatabaseService db, Algorithm algorithm, ThreadToStatementContextBridge ctx, String resultName) {
         int propertyNameId;
         try (Transaction tx = db.beginTx()) {
-            propertyNameId = ctx.get().tokenWriteOperations().propertyKeyGetOrCreateForName(algorithm.getPropertyName());
+            propertyNameId = ctx.get().tokenWriteOperations().propertyKeyGetOrCreateForName(resultName);
             tx.success();
         } catch (IllegalTokenNameException e) {
             throw new RuntimeException(e);

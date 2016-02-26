@@ -31,8 +31,11 @@ public class PageRankArrayStorageParallelSPI implements PageRank {
         this.relCount = new NodeCounter().getRelationshipCount(db);
     }
 
+    
     @Override
-    public void compute(int iterations) {
+    public void compute(int iterations) {}
+    
+    public void compute(int iterations, String relFilter) {
 
         final int[] src = new int[nodeCount];
         dst = new AtomicIntegerArray(nodeCount);
@@ -41,19 +44,28 @@ public class PageRankArrayStorageParallelSPI implements PageRank {
 
             ThreadToStatementContextBridge ctx = this.db.getDependencyResolver().resolveDependency(ThreadToStatementContextBridge.class);
             final ReadOperations ops = ctx.get().readOperations();
-
+            final int propertyNameId = ops.propertyKeyGetForName(relFilter);
             int[] degrees = computeDegrees(ops);
 
             final RelationshipVisitor<RuntimeException> visitor = new RelationshipVisitor<RuntimeException>() {
                 public void visit(long relId, int relTypeId, long startNode, long endNode) throws RuntimeException {
-                    dst.addAndGet(((int) endNode), src[(int) startNode]);
+                        
+                    try {
+                        boolean includeRel  = (boolean)ops.relationshipGetProperty(relId, propertyNameId);
+                        if (includeRel == true) {
+                                dst.addAndGet(((int) endNode), src[(int) startNode]);
+                        }
+                    } catch (EntityNotFoundException e) {
+                        e.printStackTrace();
+                    }
                 }
-           };
+            };
 
             for (int iteration = 0; iteration < iterations; iteration++) {
                 startIteration(src, dst, degrees);
 
                 PrimitiveLongIterator rels = ops.relationshipsGetAll();
+          
                 runOperations(pool, rels, relCount , ops, new OpsRunner() {
                     public void run(int id) throws EntityNotFoundException {
                         ops.relationshipVisit(id, visitor);
