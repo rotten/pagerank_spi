@@ -15,6 +15,8 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.atomic.AtomicIntegerArray;
 
 import static com.maxdemarzi.pagerank.Utils.*;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class PageRankArrayStorageParallelSPI implements PageRank {
     public static final int ONE_MINUS_ALPHA_INT = toInt(ONE_MINUS_ALPHA);
@@ -44,19 +46,23 @@ public class PageRankArrayStorageParallelSPI implements PageRank {
 
             ThreadToStatementContextBridge ctx = this.db.getDependencyResolver().resolveDependency(ThreadToStatementContextBridge.class);
             final ReadOperations ops = ctx.get().readOperations();
-            final int propertyNameId = ops.propertyKeyGetForName(relFilter);
+            final Integer propertyNameId = ops.propertyKeyGetForName(relFilter);
+            
             int[] degrees = computeDegrees(ops);
 
             final RelationshipVisitor<RuntimeException> visitor = new RelationshipVisitor<RuntimeException>() {
                 public void visit(long relId, int relTypeId, long startNode, long endNode) throws RuntimeException {
-                        
-                    try {
-                        boolean includeRel  = (boolean)ops.relationshipGetProperty(relId, propertyNameId);
-                        if (includeRel == true) {
-                                dst.addAndGet(((int) endNode), src[(int) startNode]);
+ 
+                    boolean includeRel = true;
+                    if (propertyNameId > 0) {
+                        try {
+                            includeRel = (boolean)ops.relationshipGetProperty(relId, propertyNameId);
+                        } catch (EntityNotFoundException e) {
+                            e.printStackTrace();
                         }
-                    } catch (EntityNotFoundException e) {
-                        e.printStackTrace();
+                    }
+                    if (includeRel == true) {
+                        dst.addAndGet(((int) endNode), src[(int) startNode]);
                     }
                 }
             };
