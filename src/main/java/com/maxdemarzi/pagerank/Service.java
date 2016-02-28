@@ -39,7 +39,7 @@ public class Service {
     @Path("/pagerank")
     public Response pageRank(@DefaultValue("100")      @QueryParam("iterations")                   int iterations, 
                              @DefaultValue("pagerank") @QueryParam("result_property_name")         String resultName,
-                             @DefaultValue("all")      @QueryParam("filter_prop_name")             String relFilter,
+                             @DefaultValue("all")      @QueryParam("filter_property_name")         String relFilter,
                              @Context GraphDatabaseService db) throws IOException {
 
         PageRankArrayStorageParallelSPI pageRank = new PageRankArrayStorageParallelSPI(db, pool);
