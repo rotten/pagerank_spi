@@ -2,6 +2,7 @@ package com.maxdemarzi.pagerank;
 
 import org.junit.Rule;
 import org.junit.Test;
+
 import org.neo4j.harness.junit.Neo4jRule;
 import org.neo4j.test.server.HTTP;
 

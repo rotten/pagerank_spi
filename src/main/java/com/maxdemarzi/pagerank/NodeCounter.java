@@ -1,7 +1,7 @@
 package com.maxdemarzi.pagerank;
 
 import org.neo4j.graphdb.GraphDatabaseService;
-import org.neo4j.kernel.GraphDatabaseAPI;
+import org.neo4j.kernel.internal.GraphDatabaseAPI;
 import org.neo4j.kernel.impl.store.NeoStores;
 
 public class NodeCounter {

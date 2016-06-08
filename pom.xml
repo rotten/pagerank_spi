@@ -6,12 +6,14 @@
 
     <groupId>com.maxdemarzi.pagerank</groupId>
     <artifactId>pagerank</artifactId>
-    <version>1.0</version>
+    <version>1.1</version>
 
     <properties>
-        <neo4j.version>2.3.2</neo4j.version>
-        <jmh.version>1.10.5</jmh.version>
-        <fastutil.version>7.0.2</fastutil.version>
+        <neo4j.version>3.0.2</neo4j.version>
+        <jmh.version>1.12</jmh.version>
+        <fastutil.version>7.0.11</fastutil.version>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <maven-compiler-plugin.version>3.3</maven-compiler-plugin.version>
     </properties>
 
     <dependencies>
@@ -50,8 +52,8 @@
         <dependency>
             <groupId>org.neo4j</groupId>
             <artifactId>neo4j-io</artifactId>
-            <type>test-jar</type>
             <version>${neo4j.version}</version>
+            <type>test-jar</type>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -71,9 +73,10 @@
         <plugins>
             <plugin>
                 <artifactId>maven-compiler-plugin</artifactId>
+                <version>${maven-compiler-plugin.version}</version>
                 <configuration>
-                    <source>1.7</source>
-                    <target>1.7</target>
+                    <source>1.8</source>
+                    <target>1.8</target>
                 </configuration>
             </plugin>
         </plugins>

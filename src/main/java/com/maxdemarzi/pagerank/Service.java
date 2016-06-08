@@ -3,7 +3,7 @@ package com.maxdemarzi.pagerank;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.Transaction;
-import org.neo4j.kernel.GraphDatabaseAPI;
+import org.neo4j.kernel.internal.GraphDatabaseAPI;
 import org.neo4j.kernel.api.DataWriteOperations;
 import org.neo4j.kernel.api.exceptions.EntityNotFoundException;
 import org.neo4j.kernel.api.exceptions.InvalidTransactionTypeKernelException;
@@ -25,6 +25,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import org.neo4j.kernel.api.exceptions.legacyindex.AutoIndexingKernelException;
 
 @Path("/service")
 public class Service {
@@ -77,6 +80,8 @@ public class Service {
                         tx.success();
                     } catch (ConstraintValidationKernelException | InvalidTransactionTypeKernelException | EntityNotFoundException e) {
                         e.printStackTrace();
+                    } catch (AutoIndexingKernelException ex) {
+                        Logger.getLogger(Service.class.getName()).log(Level.SEVERE, null, ex);
                     }
                 }
             });
