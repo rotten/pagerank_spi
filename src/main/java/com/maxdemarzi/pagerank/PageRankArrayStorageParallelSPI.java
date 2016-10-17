@@ -63,6 +63,8 @@ public class PageRankArrayStorageParallelSPI implements PageRank {
                                     includeRel = false;
                                 }
                             }
+                        } catch (EntityNotFoundException e) {
+                            System.out.println(e);
                         } catch (Exception e) {
                             //System.out.println(e);
                             e.printStackTrace();
