@@ -51,9 +51,11 @@ public class Service {
         pageRank.compute(iterations, relProperty, relMaxValue);
         writeBackResults(db, pageRank, resultName);
 
-        Map<String, String> results = new HashMap<String, String>() {{
-            put("results", "PageRank Completed!");
-        }};
+        Map<String, String> results = new HashMap<String, String>();
+        results.put("Results", "PageRank Completed");
+        results.put("Property", resultName);
+        results.put(relProperty + " Max Value:", Float.toString(relMaxValue));
+
         return Response.ok().entity(objectMapper.writeValueAsString(results)).build();
 
     }

@@ -19,10 +19,10 @@ public class ServiceTest {
     public void shouldRespondToPagerankCompany() {
         HTTP.Response response = HTTP.GET(neo4j.httpURI().resolve("/v1/service/pagerank").toString());
         HashMap actual = response.content();
-        assertTrue(actual.equals(expected));
+        assertTrue(actual.get("Results").equals(expected.get("Results")));
     }
 
     private static final HashMap expected = new HashMap<String, Object>() {{
-        put("results", "PageRank Completed!");
+        put("Results", "PageRank Completed");
     }};
 }
