@@ -44,7 +44,7 @@ public class Service {
     public Response pageRank(@DefaultValue("100")      @QueryParam("iterations")                 int iterations, 
                              @DefaultValue("pagerank") @QueryParam("result_property_name")       String resultName,
                              @DefaultValue("t")        @QueryParam("relationship_property_name") String relProperty,
-                             @DefaultValue("100000")   @QueryParam("max_relationship_value")     float relMaxValue,
+                             @DefaultValue("100000.0")   @QueryParam("max_relationship_value")   float relMaxValue,
                              @Context GraphDatabaseService db) throws IOException {
 
         PageRankArrayStorageParallelSPI pageRank = new PageRankArrayStorageParallelSPI(db, pool);

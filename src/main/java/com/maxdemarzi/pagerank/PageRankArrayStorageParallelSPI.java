@@ -48,8 +48,9 @@ public class PageRankArrayStorageParallelSPI implements PageRank {
             final Integer propertyNameId = ops.propertyKeyGetForName(relProperty);
             //System.out.println("propertyNameId:  " + Integer.toString(propertyNameId));          
             
-            int[] degrees = computeDegrees(ops);
+            int[] degrees = computeDegrees(ops, propertyNameId, relMaxValue);
 
+            // Only traverse edges that matter:
             final RelationshipVisitor<RuntimeException> visitor = new RelationshipVisitor<RuntimeException>() {
                 public void visit(long relId, int relTypeId, long startNode, long endNode) throws RuntimeException {
  
@@ -101,19 +102,36 @@ public class PageRankArrayStorageParallelSPI implements PageRank {
         }
     }
 
-    private int[] computeDegrees(final ReadOperations ops) throws EntityNotFoundException {
+    // Only count edges that matter:
+    private int[] computeDegrees(final ReadOperations ops, final int propertyNameId, final float relMaxValue) throws EntityNotFoundException {
+        
         final int[] degree = new int[nodeCount];
         Arrays.fill(degree, -1);
+        
         PrimitiveLongIterator it = ops.nodesGetAll();
         int totalCount = nodeCount;
+        
         runOperations(pool, it, totalCount, ops, new OpsRunner() {
             public void run(int id) throws EntityNotFoundException {
-                degree[id] = ops.nodeGetDegree(id, Direction.OUTGOING);
+                degree[id] = 0;
+                PrimitiveLongIterator rel_it = ops.nodeGetRelationships(id, Direction.OUTGOING);
+                while(rel_it.hasNext()) {
+                    long relId = rel_it.next();         
+                    if ((boolean)ops.relationshipHasProperty(relId, propertyNameId) == true) {
+                        // This edge has the property, we need to check its value before we include it in our count:
+                        float relValue = (float)ops.relationshipGetProperty(relId, propertyNameId);
+                        if (relValue <= relMaxValue) {
+                             degree[id] += 1;
+                        }
+                    } else {
+                        // This edge does not have the property, we'll just include it in our count:
+                        degree[id] += 1;
+                    }
+                }
             }
         });
         return degree;
     }
-
 
     public double getResult(long node) {
         return dst != null ? toFloat(dst.get((int) node)) : 0;
