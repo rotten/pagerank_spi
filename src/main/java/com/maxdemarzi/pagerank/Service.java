@@ -41,13 +41,14 @@ public class Service {
 
     @GET
     @Path("/pagerank")
-    public Response pageRank(@DefaultValue("100")      @QueryParam("iterations")                   int iterations, 
-                             @DefaultValue("pagerank") @QueryParam("result_property_name")         String resultName,
-                             @DefaultValue("all")      @QueryParam("filter_property_name")         String relFilter,
+    public Response pageRank(@DefaultValue("100")      @QueryParam("iterations")                 int iterations, 
+                             @DefaultValue("pagerank") @QueryParam("result_property_name")       String resultName,
+                             @DefaultValue("t")        @QueryParam("relationship_property_name") String relProperty,
+                             @DefaultValue("100000")   @QueryParam("max_relationship_value")     float relMaxValue,
                              @Context GraphDatabaseService db) throws IOException {
 
         PageRankArrayStorageParallelSPI pageRank = new PageRankArrayStorageParallelSPI(db, pool);
-        pageRank.compute(iterations, relFilter);
+        pageRank.compute(iterations, relProperty, relMaxValue);
         writeBackResults(db, pageRank, resultName);
 
         Map<String, String> results = new HashMap<String, String>() {{

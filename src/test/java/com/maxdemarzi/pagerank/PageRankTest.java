@@ -45,7 +45,7 @@ public class PageRankTest {
     @Test
     public void shouldGetPageRankArrayStorageSPI() throws IOException {
         PageRank pageRank = new PageRankArrayStorageParallelSPI(db, pool);
-        pageRank.compute(20, "all");
+        pageRank.compute(20, "all", 1);
         long id = (long) getEntry("b").get("id");
         assertEquals(EXPECTED, pageRank.getResult(id),0.1D);
 

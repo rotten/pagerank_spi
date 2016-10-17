@@ -9,7 +9,7 @@
     <version>1.1</version>
 
     <properties>
-        <neo4j.version>3.0.3</neo4j.version>
+        <neo4j.version>3.0.6</neo4j.version>
         <jmh.version>1.12</jmh.version>
         <fastutil.version>7.0.11</fastutil.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -32,6 +32,16 @@
             <groupId>org.neo4j</groupId>
             <artifactId>server-api</artifactId>
             <version>${neo4j.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.neo4j</groupId>
+            <artifactId>neo4j-logging</artifactId>
+            <version>${neo4j.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+           <artifactId>slf4j-simple</artifactId>
+           <version>1.7.7</version>
         </dependency>
         <dependency>
             <groupId>org.neo4j.app</groupId>
@@ -61,7 +71,7 @@
             <artifactId>neo4j-harness</artifactId>
             <version>${neo4j.version}</version>
             <scope>test</scope>
-        </dependency>
+        </dependency>    
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>

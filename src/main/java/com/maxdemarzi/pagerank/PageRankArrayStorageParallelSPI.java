@@ -16,8 +16,6 @@ import java.util.concurrent.atomic.AtomicIntegerArray;
 
 import static com.maxdemarzi.pagerank.Utils.*;
 
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 public class PageRankArrayStorageParallelSPI implements PageRank {
     public static final int ONE_MINUS_ALPHA_INT = toInt(ONE_MINUS_ALPHA);
@@ -26,7 +24,7 @@ public class PageRankArrayStorageParallelSPI implements PageRank {
     private final ExecutorService pool;
     private final int relCount;
     private AtomicIntegerArray dst;
-
+     
     public PageRankArrayStorageParallelSPI(GraphDatabaseService db, ExecutorService pool) {
         this.pool = pool;
         this.db = (GraphDatabaseAPI) db;
@@ -38,8 +36,8 @@ public class PageRankArrayStorageParallelSPI implements PageRank {
     @Override
     public void compute(int iterations) {}
     
-    public void compute(int iterations, String relFilter) {
-
+    public void compute(int iterations, String relProperty, float relMaxValue) {
+       
         final int[] src = new int[nodeCount];
         dst = new AtomicIntegerArray(nodeCount);
 
@@ -47,7 +45,8 @@ public class PageRankArrayStorageParallelSPI implements PageRank {
 
             ThreadToStatementContextBridge ctx = this.db.getDependencyResolver().resolveDependency(ThreadToStatementContextBridge.class);
             final ReadOperations ops = ctx.get().readOperations();
-            final Integer propertyNameId = ops.propertyKeyGetForName(relFilter);
+            final Integer propertyNameId = ops.propertyKeyGetForName(relProperty);
+            //System.out.println("propertyNameId:  " + Integer.toString(propertyNameId));          
             
             int[] degrees = computeDegrees(ops);
 
@@ -57,8 +56,15 @@ public class PageRankArrayStorageParallelSPI implements PageRank {
                     boolean includeRel = true;
                     if (propertyNameId > 0) {
                         try {
-                            includeRel = (boolean)ops.relationshipGetProperty(relId, propertyNameId);
-                        } catch (EntityNotFoundException e) {
+                            if ((boolean)ops.relationshipHasProperty(relId, propertyNameId) == true) {
+                                float relValue = (float)ops.relationshipGetProperty(relId, propertyNameId);
+                                //System.out.println("relValue:  " + Float.toString(relValue));
+                                if (relValue > relMaxValue) {
+                                    includeRel = false;
+                                }
+                            }
+                        } catch (Exception e) {
+                            //System.out.println(e);
                             e.printStackTrace();
                         }
                     }
