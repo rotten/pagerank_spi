@@ -17,13 +17,14 @@ public class BatchRunnable implements Runnable, OpsRunner {
     }
 
     private long[] add(PrimitiveLongIterator it, int count) {
-        long[] ids = new long[count];
+        long[] add_ids = new long[count];
         while (count--> 0 && it.hasNext()) {
-            ids[offset++]=it.next();
+            add_ids[offset++]=it.next();
         }
-        return ids;
+        return add_ids;
     }
 
+    @Override
     public void run() {
         int notFound = 0;
         for (int i=0;i<offset;i++) {
